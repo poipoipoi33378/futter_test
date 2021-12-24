@@ -6,10 +6,14 @@ class SignInScreen extends StatefulWidget {
 }
 
 class _SignInScreenState extends State<SignInScreen> {
+  // Formのkeyを指定する場合は<FormState>としてGlobalKeyを定義する
+  final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Center(
+      body: Form(
+        key: _formKey,
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 24),
           // Columnを使い縦に並べる
@@ -26,6 +30,12 @@ class _SignInScreenState extends State<SignInScreen> {
               TextFormField(
                 decoration: InputDecoration(labelText: 'メールアドレス'),
                 keyboardType: TextInputType.emailAddress,
+                validator: (String? value) {
+                  if (value?.isEmpty == true) {
+                    return 'メールアドレスを入力してください';
+                  }
+                  return null;
+                },
               ),
               SizedBox(height: 8),
               // 入力フォーム（パスワード）
@@ -33,13 +43,19 @@ class _SignInScreenState extends State<SignInScreen> {
                 decoration: InputDecoration(labelText: 'パスワード'),
                 keyboardType: TextInputType.visiblePassword,
                 obscureText: true,
+                validator: (String? value) {
+                  if (value?.isEmpty == true) {
+                    return 'パスワードを入力してください';
+                  }
+                  return null;
+                },
               ),
               SizedBox(height: 16),
               SizedBox(
                 width: double.infinity,
                 // ボタン（ログイン）
                 child: ElevatedButton(
-                  onPressed: () => {},
+                  onPressed: () => _onSignIn(),
                   child: Text('ログイン'),
                 ),
               ),
@@ -48,7 +64,7 @@ class _SignInScreenState extends State<SignInScreen> {
                 width: double.infinity,
                 // ボタン（新規登録）
                 child: ElevatedButton(
-                  onPressed: () => {},
+                  onPressed: () => _onSignUp(),
                   child: Text('新規登録'),
                 ),
               ),
@@ -57,5 +73,19 @@ class _SignInScreenState extends State<SignInScreen> {
         ),
       ),
     );
+  }
+
+  void _onSignIn() {
+    if (_formKey.currentState?.validate() == false) {
+      return;
+    }
+    // ログイン処理
+  }
+
+  void _onSignUp() {
+    if (_formKey.currentState?.validate() == false) {
+      return;
+    }
+    // 新規登録処理
   }
 }
