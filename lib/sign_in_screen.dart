@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:photoapp/photo_list_screen.dart';
 
 class SignInScreen extends StatefulWidget {
   @override
@@ -79,13 +80,23 @@ class _SignInScreenState extends State<SignInScreen> {
     if (_formKey.currentState?.validate() == false) {
       return;
     }
-    // ログイン処理
+
+    Navigator.of(context).pushReplacement(
+      MaterialPageRoute(
+        builder: (_) => PhotoListScreen(),
+      ),
+    );
   }
 
   void _onSignUp() {
     if (_formKey.currentState?.validate() == false) {
       return;
     }
-    // 新規登録処理
+
+    Navigator.of(context).pushReplacement(
+      MaterialPageRoute(
+        builder: (_) => PhotoListScreen(),
+      ),
+    );
   }
 }
