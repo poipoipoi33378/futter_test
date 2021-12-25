@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:photoapp/photo_view_screen.dart';
 
 class PhotoListScreen extends StatefulWidget {
   @override
@@ -35,8 +36,12 @@ class _PhotoListScreenState extends State<PhotoListScreen> {
         controller: _controller,
         onPageChanged: (index) => _onPageChanged(index),
         children: [
-          PhotoGridView(),
-          PhotoGridView(),
+          PhotoGridView(
+            onTap: (imageURL) => _onTapPhoto(imageURL),
+          ),
+          PhotoGridView(
+            onTap: (imageURL) => _onTapPhoto(imageURL),
+          )
         ],
       ),
       floatingActionButton: FloatingActionButton(
@@ -56,6 +61,15 @@ class _PhotoListScreenState extends State<PhotoListScreen> {
             label: 'お気に入り',
           ),
         ],
+      ),
+    );
+  }
+
+  void _onTapPhoto(String imageURL) {
+    // 最初に表示する画像のURLを指定して、画像詳細画面に切り替える
+    Navigator.of(context).push(
+      MaterialPageRoute(
+        builder: (_) => PhotoViewScreen(imageURL: imageURL),
       ),
     );
   }
@@ -82,6 +96,12 @@ class _PhotoListScreenState extends State<PhotoListScreen> {
 }
 
 class PhotoGridView extends StatelessWidget {
+  const PhotoGridView({
+    Key? key,
+    required this.onTap,
+  }) : super(key: key);
+  final void Function(String imageURL) onTap;
+
   @override
   Widget build(BuildContext context) {
     // ダミー画像一覧
@@ -114,7 +134,7 @@ class PhotoGridView extends StatelessWidget {
               height: double.infinity,
               // Widgetをタップ可能にする
               child: InkWell(
-                onTap: () => {},
+                onTap: () => onTap(imageURL),
                 // URLを指定して画像を表示
                 child: Image.network(
                   imageURL,
