@@ -1,4 +1,8 @@
+import 'dart:io';
+
+import 'package:file_picker/file_picker.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:photoapp/photo_view_screen.dart';
 import 'package:photoapp/sign_in_screen.dart';
@@ -46,9 +50,10 @@ class _PhotoListScreenState extends State<PhotoListScreen> {
           )
         ],
       ),
+      // 画像追加用ボタン
       floatingActionButton: FloatingActionButton(
         child: Icon(Icons.add),
-        onPressed: () {},
+        onPressed: () => _onAddPhoto(),
       ),
       bottomNavigationBar: BottomNavigationBar(
         currentIndex: _currentIndex,
@@ -108,6 +113,31 @@ class _PhotoListScreenState extends State<PhotoListScreen> {
       curve: Curves.easeInOut,
     );
   }
+}
+
+Future<void> _onAddPhoto() async {
+  // 画像ファイルを選択する
+  final FilePickerResult? result = await FilePicker.platform.pickFiles(
+    type: FileType.image,
+  );
+
+  if (result == null) {
+    // ファイルが選択されなかった場合は何もしない
+    print('No file selected.');
+    return;
+  }
+
+  final User user = FirebaseAuth.instance.currentUser!;
+  final int timestamp = DateTime.now().millisecondsSinceEpoch;
+  final File file = File(result.files.single.path!);
+  final String name = file.path.split('/').last;
+  final String path = '${timestamp}_$name';
+  print(path);
+  final TaskSnapshot task = await FirebaseStorage.instance
+      .ref()
+      .child('users/${user.uid}/photos')
+      .child(path)
+      .putFile(file);
 }
 
 class PhotoGridView extends StatelessWidget {
