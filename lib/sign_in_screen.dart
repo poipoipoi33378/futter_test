@@ -108,6 +108,10 @@ class _SignInScreenState extends State<SignInScreen> {
       // メールアドレスとパスワードでユーザー作成
       final String email = _emailController.text;
       final String password = _passwordController.text;
+
+      print(email);
+      print(password);
+
       await FirebaseAuth.instance.createUserWithEmailAndPassword(
         email: email,
         password: password,
@@ -119,6 +123,7 @@ class _SignInScreenState extends State<SignInScreen> {
         ),
       );
     } catch (e) {
+      print(e.toString());
       await showDialog(
         context: context,
         builder: (context) {
