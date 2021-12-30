@@ -29,6 +29,8 @@ class _PhotoListScreenState extends State<PhotoListScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final User user = FirebaseAuth.instance.currentUser!;
+
     return Scaffold(
       appBar: AppBar(
         title: Text('Photo App'),
@@ -39,17 +41,35 @@ class _PhotoListScreenState extends State<PhotoListScreen> {
           ),
         ],
       ),
-      body: PageView(
-        controller: _controller,
-        onPageChanged: (index) => _onPageChanged(index),
-        children: [
-          PhotoGridView(
-            onTap: (imageURL) => _onTapPhoto(imageURL),
-          ),
-          PhotoGridView(
-            onTap: (imageURL) => _onTapPhoto(imageURL),
-          )
-        ],
+      body: StreamBuilder<QuerySnapshot>(
+        stream: FirebaseFirestore.instance
+            .collection('users/${user.uid}/photos')
+            .orderBy('createdAt', descending: true)
+            .snapshots(),
+        builder: (context, snapshot) {
+          if (snapshot.hasData == false) {
+            return Center(
+              child: CircularProgressIndicator(),
+            );
+          }
+          final QuerySnapshot query = snapshot.data!;
+          final List<String> imageList =
+              query.docs.map((doc) => doc.get('imageURL') as String).toList();
+          return PageView(
+            controller: _controller,
+            onPageChanged: (index) => _onPageChanged(index),
+            children: [
+              PhotoGridView(
+                imageList: imageList,
+                onTap: (imageURL) => _onTapPhoto(imageURL, imageList),
+              ),
+              PhotoGridView(
+                imageList: [],
+                onTap: (imageURL) => _onTapPhoto(imageURL, imageList),
+              )
+            ],
+          );
+        },
       ),
       // 画像追加用ボタン
       floatingActionButton: FloatingActionButton(
@@ -86,11 +106,14 @@ class _PhotoListScreenState extends State<PhotoListScreen> {
     );
   }
 
-  void _onTapPhoto(String imageURL) {
+  void _onTapPhoto(String imageURL, List<String> imageList) {
     // 最初に表示する画像のURLを指定して、画像詳細画面に切り替える
     Navigator.of(context).push(
       MaterialPageRoute(
-        builder: (_) => PhotoViewScreen(imageURL: imageURL),
+        builder: (_) => PhotoViewScreen(
+          imageURL: imageURL,
+          imageList: imageList,
+        ),
       ),
     );
   }
@@ -156,22 +179,15 @@ Future<void> _onAddPhoto() async {
 class PhotoGridView extends StatelessWidget {
   const PhotoGridView({
     Key? key,
+    required this.imageList,
     required this.onTap,
   }) : super(key: key);
+
+  final List<String> imageList;
   final void Function(String imageURL) onTap;
 
   @override
   Widget build(BuildContext context) {
-    // ダミー画像一覧
-    final List<String> imageList = [
-      'https://placehold.jp/400x300.png?text=0',
-      'https://placehold.jp/400x300.png?text=1',
-      'https://placehold.jp/400x300.png?text=2',
-      'https://placehold.jp/400x300.png?text=3',
-      'https://placehold.jp/400x300.png?text=4',
-      'https://placehold.jp/400x300.png?text=5',
-    ];
-
     // GridViewを使いタイル状にWidgetを表示する
     return GridView.count(
       // 1行あたりに表示するWidgetの数

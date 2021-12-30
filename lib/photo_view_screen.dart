@@ -4,9 +4,11 @@ class PhotoViewScreen extends StatefulWidget {
   const PhotoViewScreen({
     Key? key,
     required this.imageURL,
+    required this.imageList,
   }) : super(key: key);
 
   final String imageURL;
+  final List<String> imageList;
 
   @override
   _PhotoViewScreenState createState() => _PhotoViewScreenState();
@@ -15,21 +17,11 @@ class PhotoViewScreen extends StatefulWidget {
 class _PhotoViewScreenState extends State<PhotoViewScreen> {
   late PageController _controller;
 
-  // ダミー画像一覧
-  final List<String> imageList = [
-    'https://placehold.jp/400x300.png?text=0',
-    'https://placehold.jp/400x300.png?text=1',
-    'https://placehold.jp/400x300.png?text=2',
-    'https://placehold.jp/400x300.png?text=3',
-    'https://placehold.jp/400x300.png?text=4',
-    'https://placehold.jp/400x300.png?text=5',
-  ];
-
   @override
   void initState() {
     super.initState();
 
-    final int initialPage = imageList.indexOf(widget.imageURL);
+    final int initialPage = widget.imageList.indexOf(widget.imageURL);
     _controller = PageController(
       initialPage: initialPage,
     );
@@ -51,7 +43,7 @@ class _PhotoViewScreenState extends State<PhotoViewScreen> {
           PageView(
             controller: _controller,
             onPageChanged: (int index) => {},
-            children: imageList.map((String imageURL) {
+            children: widget.imageList.map((String imageURL) {
               return Image.network(
                 imageURL,
                 fit: BoxFit.cover,
