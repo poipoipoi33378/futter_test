@@ -1,3 +1,4 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:photoapp/photo_list_screen.dart';
 
@@ -9,6 +10,10 @@ class SignInScreen extends StatefulWidget {
 class _SignInScreenState extends State<SignInScreen> {
   // Formのkeyを指定する場合は<FormState>としてGlobalKeyを定義する
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
+  // メールアドレス用のTextEditingController
+  final TextEditingController _emailController = TextEditingController();
+  // パスワード用のTextEditingController
+  final TextEditingController _passwordController = TextEditingController();
 
   @override
   Widget build(BuildContext context) {
@@ -29,7 +34,10 @@ class _SignInScreenState extends State<SignInScreen> {
               SizedBox(height: 16),
               // 入力フォーム（メールアドレス）
               TextFormField(
-                decoration: InputDecoration(labelText: 'メールアドレス'),
+                controller: _emailController,
+                decoration: InputDecoration(
+                  labelText: 'メールアドレス',
+                ),
                 keyboardType: TextInputType.emailAddress,
                 validator: (String? value) {
                   if (value?.isEmpty == true) {
@@ -41,7 +49,10 @@ class _SignInScreenState extends State<SignInScreen> {
               SizedBox(height: 8),
               // 入力フォーム（パスワード）
               TextFormField(
-                decoration: InputDecoration(labelText: 'パスワード'),
+                controller: _passwordController,
+                decoration: InputDecoration(
+                  labelText: 'パスワード',
+                ),
                 keyboardType: TextInputType.visiblePassword,
                 obscureText: true,
                 validator: (String? value) {
@@ -88,15 +99,35 @@ class _SignInScreenState extends State<SignInScreen> {
     );
   }
 
-  void _onSignUp() {
-    if (_formKey.currentState?.validate() == false) {
-      return;
-    }
+  Future<void> _onSignUp() async {
+    try {
+      if (_formKey.currentState?.validate() == false) {
+        return;
+      }
 
-    Navigator.of(context).pushReplacement(
-      MaterialPageRoute(
-        builder: (_) => PhotoListScreen(),
-      ),
-    );
+      // メールアドレスとパスワードでユーザー作成
+      final String email = _emailController.text;
+      final String password = _passwordController.text;
+      await FirebaseAuth.instance.createUserWithEmailAndPassword(
+        email: email,
+        password: password,
+      );
+
+      Navigator.of(context).pushReplacement(
+        MaterialPageRoute(
+          builder: (_) => PhotoListScreen(),
+        ),
+      );
+    } catch (e) {
+      await showDialog(
+        context: context,
+        builder: (context) {
+          return AlertDialog(
+            title: Text('エラー'),
+            content: Text(e.toString()),
+          );
+        },
+      );
+    }
   }
 }
