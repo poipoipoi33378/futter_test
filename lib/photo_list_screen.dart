@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
@@ -138,6 +139,18 @@ Future<void> _onAddPhoto() async {
       .child('users/${user.uid}/photos')
       .child(path)
       .putFile(file);
+  final String imageURL = await task.ref.getDownloadURL();
+  final String imagePath = task.ref.fullPath;
+  final data = {
+    'imageURL': imageURL,
+    'imagePath': imagePath,
+    'createdAt': Timestamp.now(),
+  };
+  print(imagePath);
+  FirebaseFirestore.instance
+      .collection('users/${user.uid}/photos')
+      .doc()
+      .set(data);
 }
 
 class PhotoGridView extends StatelessWidget {
