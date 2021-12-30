@@ -1,5 +1,7 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:photoapp/photo_view_screen.dart';
+import 'package:photoapp/sign_in_screen.dart';
 
 class PhotoListScreen extends StatefulWidget {
   @override
@@ -28,7 +30,7 @@ class _PhotoListScreenState extends State<PhotoListScreen> {
         actions: [
           IconButton(
             icon: Icon(Icons.exit_to_app),
-            onPressed: () {},
+            onPressed: () => _onSignOut(),
           ),
         ],
       ),
@@ -61,6 +63,19 @@ class _PhotoListScreenState extends State<PhotoListScreen> {
             label: 'お気に入り',
           ),
         ],
+      ),
+    );
+  }
+
+  Future<void> _onSignOut() async {
+    // ログアウト処理
+    await FirebaseAuth.instance.signOut();
+
+    // ログアウトに成功したらログイン画面に戻す
+    //   現在の画面は不要になるのでpushReplacementを使う
+    Navigator.of(context).pushReplacement(
+      MaterialPageRoute(
+        builder: (_) => SignInScreen(),
       ),
     );
   }
