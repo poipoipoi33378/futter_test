@@ -10,12 +10,14 @@ class PhotoRepository {
 
   final User user;
 
-  Stream<List<Photo>> getPhotos() {
-    return FirebaseFirestore.instance
+  Stream<List<Photo>> getPhotoList() {
+    Stream<List<Photo>> list = FirebaseFirestore.instance
         .collection('users/${user.uid}/photos')
         .orderBy('createdAt', descending: true)
         .snapshots()
         .map(_queryToPhotoList);
+    // print(user);
+    return list;
   }
 
   Future<void> addPhoto(File file) async {

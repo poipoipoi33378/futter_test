@@ -1,14 +1,15 @@
 import 'package:flutter/material.dart';
+import 'package:photoapp/photo.dart';
 
 class PhotoViewScreen extends StatefulWidget {
   const PhotoViewScreen({
     Key? key,
-    required this.imageURL,
-    required this.imageList,
+    required this.photo,
+    required this.photoList,
   }) : super(key: key);
 
-  final String imageURL;
-  final List<String> imageList;
+  final Photo photo;
+  final List<Photo> photoList;
 
   @override
   _PhotoViewScreenState createState() => _PhotoViewScreenState();
@@ -21,7 +22,7 @@ class _PhotoViewScreenState extends State<PhotoViewScreen> {
   void initState() {
     super.initState();
 
-    final int initialPage = widget.imageList.indexOf(widget.imageURL);
+    final int initialPage = widget.photoList.indexOf(widget.photo);
     _controller = PageController(
       initialPage: initialPage,
     );
@@ -43,9 +44,9 @@ class _PhotoViewScreenState extends State<PhotoViewScreen> {
           PageView(
             controller: _controller,
             onPageChanged: (int index) => {},
-            children: widget.imageList.map((String imageURL) {
+            children: widget.photoList.map((Photo photo) {
               return Image.network(
-                imageURL,
+                photo.imageURL,
                 fit: BoxFit.cover,
               );
             }).toList(),
