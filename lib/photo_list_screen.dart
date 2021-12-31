@@ -54,6 +54,7 @@ class _PhotoListScreenState extends State<PhotoListScreen> {
                 return PhotoGridView(
                   photoList: photoList,
                   onTap: (photo) => _onTapPhoto(photo, photoList),
+                  onTapFav: (photo) => _onTapFav(photo),
                 );
               },
               loading: () {
@@ -77,6 +78,7 @@ class _PhotoListScreenState extends State<PhotoListScreen> {
                 return PhotoGridView(
                   photoList: photoList,
                   onTap: (photo) => _onTapPhoto(photo, photoList),
+                  onTapFav: (photo) => _onTapFav(photo),
                 );
               },
               loading: () {
@@ -162,6 +164,12 @@ class _PhotoListScreenState extends State<PhotoListScreen> {
     );
     context.read(photoListIndexProvider).state = index;
   }
+
+  Future<void> _onTapFav(Photo photo) async {
+    final photoRepository = context.read(photoRepositoryProvider);
+    final toggledPhoto = photo.toggleIsFavorite();
+    await photoRepository!.updatePhoto(toggledPhoto);
+  }
 }
 
 Future<void> _onAddPhoto() async {
@@ -184,10 +192,12 @@ class PhotoGridView extends StatelessWidget {
     Key? key,
     required this.photoList,
     required this.onTap,
+    required this.onTapFav,
   }) : super(key: key);
 
   final List<Photo> photoList;
   final Function(Photo photo) onTap;
+  final void Function(Photo photo) onTapFav;
 
   @override
   Widget build(BuildContext context) {
@@ -227,9 +237,14 @@ class PhotoGridView extends StatelessWidget {
             Align(
               alignment: Alignment.topRight,
               child: IconButton(
-                onPressed: () => {},
+                onPressed: () => onTapFav(photo),
                 color: Colors.white,
-                icon: Icon(Icons.favorite_border),
+                icon: Icon(
+                  // お気に入り登録状況に応じてアイコンを切り替え
+                  photo.isFavorite == true
+                      ? Icons.favorite
+                      : Icons.favorite_border,
+                ),
               ),
             ),
           ],

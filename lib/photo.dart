@@ -12,4 +12,14 @@ class Photo {
   final String imagePath;
   final bool isFavorite;
   final DateTime? createdAt;
+
+  Photo toggleIsFavorite() {
+    return Photo(
+      id: id,
+      imageURL: imageURL,
+      imagePath: imagePath,
+      isFavorite: !isFavorite,
+      createdAt: createdAt,
+    );
+  }
 }
