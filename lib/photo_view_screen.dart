@@ -90,7 +90,7 @@ class _PhotoViewScreenState extends State<PhotoViewScreen> {
                   ),
                   // 削除ボタン
                   IconButton(
-                    onPressed: () => {},
+                    onPressed: () => _onTapDelete(),
                     color: Colors.white,
                     icon: Icon(Icons.delete),
                   ),
@@ -101,5 +101,22 @@ class _PhotoViewScreenState extends State<PhotoViewScreen> {
         ],
       ),
     );
+  }
+
+  Future<void> _onTapDelete() async {
+    final photoRepository = context.read(photoRepositoryProvider);
+    final photoList = context.read(photoListProvider).data!.value;
+    final photo = photoList[_controller.page!.toInt()];
+
+    if (photoList.length == 1) {
+      Navigator.of(context).pop();
+    } else if (photoList.last == photo) {
+      await _controller.previousPage(
+        duration: Duration(milliseconds: 300),
+        curve: Curves.easeInOut,
+      );
+    }
+
+    await photoRepository!.deletePhoto(photo);
   }
 }
