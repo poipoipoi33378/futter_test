@@ -1,16 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:photoapp/photo.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:photoapp/providers.dart';
 
 class PhotoViewScreen extends StatefulWidget {
-  const PhotoViewScreen({
-    Key? key,
-    required this.photo,
-    required this.photoList,
-  }) : super(key: key);
-
-  final Photo photo;
-  final List<Photo> photoList;
-
   @override
   _PhotoViewScreenState createState() => _PhotoViewScreenState();
 }
@@ -22,9 +15,8 @@ class _PhotoViewScreenState extends State<PhotoViewScreen> {
   void initState() {
     super.initState();
 
-    final int initialPage = widget.photoList.indexOf(widget.photo);
     _controller = PageController(
-      initialPage: initialPage,
+      initialPage: context.read(photoViewInitialIndexProvider),
     );
   }
 
@@ -40,17 +32,34 @@ class _PhotoViewScreenState extends State<PhotoViewScreen> {
       ),
       body: Stack(
         children: [
-          // 画像一覧
-          PageView(
-            controller: _controller,
-            onPageChanged: (int index) => {},
-            children: widget.photoList.map((Photo photo) {
-              return Image.network(
-                photo.imageURL,
-                fit: BoxFit.cover,
-              );
-            }).toList(),
-          ),
+          Consumer(builder: (context, watch, child) {
+            final asyncPhotoList = watch(photoListProvider);
+
+            return asyncPhotoList.when(
+              data: (photoList) {
+                return PageView(
+                  controller: _controller,
+                  onPageChanged: (int index) => {},
+                  children: photoList.map((Photo photo) {
+                    return Image.network(
+                      photo.imageURL,
+                      fit: BoxFit.cover,
+                    );
+                  }).toList(),
+                );
+              },
+              loading: () {
+                return Center(
+                  child: CircularProgressIndicator(),
+                );
+              },
+              error: (e, stackTrace) {
+                return Center(
+                  child: Text(e.toString()),
+                );
+              },
+            );
+          }),
           // アイコンボタンを画像の手前に重ねる
           Align(
             alignment: Alignment.bottomCenter,
